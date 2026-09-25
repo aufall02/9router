@@ -315,11 +315,19 @@ function flattenTypeArrays(obj) {
   }
 }
 
-// Infer missing type=object when properties exist (Gemini requires explicit type)
-function ensureObjectType(obj) {
+// Infer missing type=object when properties exist (Gemini requires explicit type).
+// A properties map must not be treated as a schema: a tool param named
+// "properties" would otherwise make the map itself get a bogus type:"object".
+function ensureObjectType(obj, isPropertiesMap = false) {
   if (!obj || typeof obj !== "object") return;
-  if (obj.properties && !obj.type) obj.type = "object";
-  for (const v of Object.values(obj)) if (v && typeof v === "object") ensureObjectType(v);
+  if (!isPropertiesMap && obj.properties && !obj.type) obj.type = "object";
+  for (const [k, v] of Object.entries(obj)) {
+    if (!v || typeof v !== "object") continue;
+    // Inside a properties map every value is a param schema, never a nested map;
+    // in a schema, only the "properties" value is a map.
+    const childIsMap = !isPropertiesMap && !Array.isArray(obj) && k === "properties";
+    ensureObjectType(v, childIsMap);
+  }
 }
 
 // Convert prefixItems (tuple validation) to items — Gemini cannot express tuples,
