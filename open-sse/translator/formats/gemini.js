@@ -30,8 +30,6 @@ export const UNSUPPORTED_SCHEMA_CONSTRAINTS = [
   "dependencies", "dependentSchemas", "dependentRequired",
   // Other unsupported keywords
   "title", "optional", "deprecated", "if", "then", "else", "contentMediaType", "contentEncoding",
-  // ajv-errors' custom message keyword (upstream #4283: "Unknown name errorMessage")
-  "errorMessage",
   // UI/Styling properties (from Cursor tools - NOT JSON Schema standard)
   "cornerRadius", "fillColor", "fontFamily", "fontSize", "fontWeight",
   "gap", "padding", "strokeColor", "strokeThickness", "textColor",
@@ -418,24 +416,22 @@ export function cleanJSONSchemaForAntigravity(schema) {
     if (Object.keys(obj).length === 0) {
       obj.type = "object";
       obj.properties = {
-        reason: {
+        _placeholder: {
           type: "string",
-          description: "Brief explanation of why you are calling this tool"
+          description: "Optional placeholder"
         }
       };
-      obj.required = ["reason"];
       return;
     }
 
     if (obj.type === "object") {
       if (!obj.properties || Object.keys(obj.properties).length === 0) {
         obj.properties = {
-          reason: {
+          _placeholder: {
             type: "string",
-            description: "Brief explanation of why you are calling this tool"
+            description: "Optional placeholder"
           }
         };
-        obj.required = ["reason"];
       }
     }
 
